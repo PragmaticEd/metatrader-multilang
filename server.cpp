@@ -1,5 +1,14 @@
-//C++11: remote procedure call library for MQL4
-//g++ server.cpp -o server.dll -s -shared -Wl,--kill-at -std=c++11 -lws2_32
+// server.cpp
+// C++11: remote procedure call library for MQL4
+
+#ifndef _WIN32
+#define MQLAPI __attribute__((visibility("default")))
+#define MQLCALL
+#undef  _GLIBCXX_USE_INT128
+#else
+#define MQLAPI __declspec(dllexport)
+#define MQLCALL __stdcall
+#endif
 
 #include "winsock2.h"
 #include "time.h"
@@ -37,14 +46,6 @@ struct Indicator {
 
 vector<Indicator*> indicators;
 
-/*
-00 GETCONST     ([int]) -> int|double           double Ask, Bid, Point/int Bars, Digits/double Open[], Close[], High[], Low[], Volume[]/int Time[]
-01 ACCINFO      -> double                       double AccountBalance()
-02 
-*/
-
-#define MQLCALL __stdcall
-#define MQLAPI __declspec(dllexport)
 
 struct mql_string {
     size_t len;
