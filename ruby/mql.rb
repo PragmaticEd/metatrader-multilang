@@ -1,4 +1,4 @@
-require 'socket'
+require 'rbzmq'
 require 'msgpack'
 
 require_relative 'order'
@@ -21,7 +21,8 @@ class Mql
 
       begin
          i += 1
-         @s = TCPSocket.new('localhost', port)
+         @s = RbZMQ::Socket.new(ZMQ::REQ)
+         @s.connect("tcp://127.0.0.1:#{port}")
       rescue Errno::ECONNREFUSED
          raise if i > 5
          sleep 0.1
@@ -41,21 +42,11 @@ class Mql
          args.select {|o| String === o }
       ].to_msgpack
 
-      @s.write([msg.size].pack('S') << msg)
+      @s.send(msg)
    end
 
    def receive
-      begin
-         len = @s.read(2)
-      rescue Errno::ECONNRESET
-      end
-      raise MqlClose.new if len.nil?
-
-      len = len.unpack('S').first
-
-      if len > 0
-         MessagePack.unpack(@s.read(len)).flatten
-      end
+      MessagePack.unpack(@s.recv.data).flatten
    end
 
    def ask
