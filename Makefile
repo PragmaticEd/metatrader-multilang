@@ -1,8 +1,7 @@
-CXX=i486-mingw32-g++
-# -m32 ?
-#CXXFLAGS= -static-libgcc -static-libstdc++
+CXX=/usr/bin/i686-w64-mingw32-g++
+CXXFLAGS=-s -shared -Wl,--kill-at -std=c++11 -m32 -static-libstdc++ -static-libgcc
 
 all: server.dll
 
-server.dll: server.cpp
-	$(CXX) $^ -o $@ -s -shared -Wl,--kill-at -std=c++11 -lzmq -lmsgpack
+%.dll: %.cpp
+	$(CXX) $^ -o $@ $(CXXFLAGS) -lzmq -lmsgpack
